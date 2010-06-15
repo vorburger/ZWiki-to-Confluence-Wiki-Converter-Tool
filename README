@@ -1,0 +1,14 @@
+This is the public Git repo of the ZWiki to Confluence Wiki Converter Tool,
+built for the migration of the MIFOS (Open Source Microfinance platform) Wiki.
+
+@author Michael Vorburger <mike@vorburger.ch> http://www.vorburger.ch
+@author Raphael Ackermann
+
+More background on:
+* http://mifosforge.jira.com/wiki/display/MIFOSADMIN/ZWiki+to+Confluence+Wiki+Converter+Tool
+* http://www.mifos.org/developers/wiki/MigrateDeveloperWiki/
+
+This tool is built on 
+* zwikiscraper: a custom written Plone zWiki "crawler"
+* forked and extended Atlassian Confluence Universal Wiki Converter https://studio.plugins.atlassian.com/wiki/display/UWC/Universal+Wiki+Converter
+* forked (only for convenience) Java ReStructuredText parser http://jrst.labs.libre-entreprise.org/jrst/en/
