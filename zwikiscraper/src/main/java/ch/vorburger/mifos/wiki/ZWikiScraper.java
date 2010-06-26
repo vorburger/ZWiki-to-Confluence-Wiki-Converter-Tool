@@ -14,7 +14,7 @@
  * limitations under the License.
 */
 
-package ch.vorburger.mifos.zwikiscraper;
+package ch.vorburger.mifos.wiki;
 
 import java.io.File;
 import java.io.FileWriter;
