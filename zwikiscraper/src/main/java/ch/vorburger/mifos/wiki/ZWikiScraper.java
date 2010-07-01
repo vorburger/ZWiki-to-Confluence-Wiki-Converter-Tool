@@ -59,8 +59,9 @@ public class ZWikiScraper {
 			if (wdGoToEdit(pageID)) {
 				page.pageContent = wd.findElement(By.tagName("textarea")).getValue(); // NOT getText(); !!!
 				page.pageName = wd.findElement(By.name("title")).getValue();
+				if ((page.pageName == null) || (page.pageName.isEmpty()))
+					page.pageName = page.pageID;
 				page.timeStamp = wd.findElement(By.name("timeStamp")).getValue();
-				// TODO value="1274553670.71" ... ?? 
 			}
 			return page;
 		}
