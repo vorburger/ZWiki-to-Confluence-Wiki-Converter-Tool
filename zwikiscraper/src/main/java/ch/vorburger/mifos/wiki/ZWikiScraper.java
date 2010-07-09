@@ -17,10 +17,12 @@
 package ch.vorburger.mifos.wiki;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
@@ -67,25 +69,35 @@ public class ZWikiScraper {
 		}
 		
 		void dumpToDirectory(File parentDir) throws IOException {
+			parentDir.mkdirs();
 			WikiPage page = getPage();
-			File nodeDir = new File(parentDir, page.pageID);
-			nodeDir.mkdirs();
 			
 			if (page.pageContent != null) {
-				String fileName = "content$" + page.pageName;
-				File file = new File(nodeDir, fileName);
+				File contentFile = new File(parentDir, page.pageID + ".rst");
 				FileWriter fw = null;
 				try {
-					fw = new FileWriter(file);
+					fw = new FileWriter(contentFile);
 					IOUtils.write(page.pageContent, fw);
 				} finally {
 					if (fw != null)
 						fw.close();
-				}			
+				}
+				
+/*				// TODO Re-enable, and test... if I actually use pageName & timeStamp
+				Properties pageMetadataProperties = new Properties();
+				pageMetadataProperties.setProperty("pageName", page.pageName);
+				pageMetadataProperties.setProperty("timeStamp", page.timeStamp);
+				File propertiesFile = new File(parentDir, page.pageID + ".properties");
+				pageMetadataProperties.store(new FileOutputStream(propertiesFile), ZWikiScraper.class.getName());
+*/				
 			}
 			
-			for (WikiNode childNode : childNodes) {
-				childNode.dumpToDirectory(nodeDir);
+			if (!childNodes.isEmpty()) {
+				File childNodeDir = new File(parentDir, page.pageID);
+				childNodeDir.mkdirs();
+				for (WikiNode childNode : childNodes) {
+					childNode.dumpToDirectory(childNodeDir);
+				}
 			}
 		}
 	}
@@ -142,11 +154,15 @@ public class ZWikiScraper {
 			throw new IllegalArgumentException("wikiBaseURL must end with a slash ('/') but does not: " + wikiBaseURL);
 
 		this.wd = new HtmlUnitDriver(true); // true = JS on; IS NEEDED for authentication & forwarding to work!
+		// TODO Works? Faster?? wd.setJavascriptEnabled(false);
 		// this.wd = new FirefoxDriver();
 		this.wd.manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS);
 	}
 
 	public static void main(String[] args) throws IOException {
+		if (args.length != 2) 
+			throw new IllegalArgumentException("Missing uid & pwd, as args");
+		
 		String uid = args[0];
 		String pwd = args[1];
 		ZWikiScraper s = new ZWikiScraper("http://www.mifos.org/developers/wiki/", uid, pwd);

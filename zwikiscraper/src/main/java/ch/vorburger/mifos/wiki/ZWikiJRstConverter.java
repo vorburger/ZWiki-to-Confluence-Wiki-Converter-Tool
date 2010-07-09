@@ -60,11 +60,13 @@ public class ZWikiJRstConverter {
 			if (file.isDirectory()) {
 				convertPages(file);
 			} else if (file.isFile()) {
-				if (file.getName().startsWith("content$") && !file.getName().endsWith(".xml")) {
+				if (file.getName().endsWith(".rst")) {
 					System.out.print((successfulPages + failedPages + 1) + ". ");
 					System.out.println(file.getCanonicalPath());
 					convertPage(file);
 				} else if (file.getName().endsWith(".xml")) {
+					// Ignore
+				} else if (file.getName().endsWith(".properties")) {
 					// Ignore
 				} else if (file.getName().startsWith("SKIP--")) {
 					// Ignore
@@ -77,7 +79,7 @@ public class ZWikiJRstConverter {
 	}
 
 	public boolean convertPage(File inputFile) throws Exception {
-		File outputFile = new File(inputFile.getParentFile(), inputFile.getName() + ".xml");
+		File outputFile = new File(inputFile.getParentFile(), inputFile.getName().replace(".rst", "") + ".xml");
 		try {
 			JRST.generate("xml", inputFile, "UTF-8", outputFile, "UTF-8", Overwrite.ALLTIME);
 			++successfulPages;
