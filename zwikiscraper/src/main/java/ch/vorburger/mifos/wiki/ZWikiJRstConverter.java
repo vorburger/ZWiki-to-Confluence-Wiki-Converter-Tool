@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.nuiton.jrst.JRST;
 import org.nuiton.jrst.JRST.Overwrite;
+import org.nuiton.jrst.JRSTOptions;
 
 /**
  * Converts Plone ZWiki reStructured Text file dump (produced by the ZWikiScraper) into XML, using JRst.
@@ -31,9 +32,13 @@ import org.nuiton.jrst.JRST.Overwrite;
 public class ZWikiJRstConverter {
 
 	public static void main(String[] args) throws Exception {
-		long startTime = System.currentTimeMillis();
 		ZWikiJRstConverter conv = new ZWikiJRstConverter();
-		conv.convertPages(new File("target/wikiContent/"));
+		long startTime = System.currentTimeMillis();
+		if (args.length == 1) {
+			conv.convertPage(new File(args[0]));
+		} else {
+			conv.convertPages(new File("target/wikiContent/"));
+		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("\n\nConversion skipped (not attempted) for the following input pages :");
 		for (File skippedPageName : conv.skippedPageNames) {
@@ -81,7 +86,11 @@ public class ZWikiJRstConverter {
 	public boolean convertPage(File inputFile) throws Exception {
 		File outputFile = new File(inputFile.getParentFile(), inputFile.getName().replace(".rst", "") + ".xml");
 		try {
-			JRST.generate("xml", inputFile, "UTF-8", outputFile, "UTF-8", Overwrite.ALLTIME);
+			JRSTOptions options = new JRSTOptions();
+			options.lenientTitle = true;
+			options.otherKindsOfTitleLevels = true;
+			options.keepLevel = true;
+			JRST.generate("xml", inputFile, "UTF-8", outputFile, "UTF-8", Overwrite.ALLTIME, options);
 			++successfulPages;
 			return true;
 		} catch (Exception e) {
