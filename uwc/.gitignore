@@ -1,0 +1,15 @@
+/.svn
+/build.xml
+/confluenceservice-v1.wsdl
+/log4j.properties
+/readme.txt
+/run_build_zip.sh
+/test.txt
+/uwc.properties
+/gensrc
+/images
+/lib
+/output
+/sampleData
+/bin
+/*.log
