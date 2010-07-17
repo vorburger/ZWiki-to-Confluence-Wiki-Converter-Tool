@@ -90,6 +90,7 @@ public class ZWikiJRstConverter {
 			options.lenientTitle = true;
 			options.otherKindsOfTitleLevels = true;
 			options.keepLevel = true;
+			options.newlinesInXML = false;
 			JRST.generate("xml", inputFile, "UTF-8", outputFile, "UTF-8", Overwrite.ALLTIME, options);
 			++successfulPages;
 			return true;

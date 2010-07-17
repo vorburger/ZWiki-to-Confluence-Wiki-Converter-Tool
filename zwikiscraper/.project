@@ -20,11 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.maven.ide.eclipse.maven2Nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>target/Sample</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/uwc/output/output/Sample</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

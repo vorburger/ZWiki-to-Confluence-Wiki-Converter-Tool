@@ -22,14 +22,14 @@ import org.xml.sax.SAXException;
 import com.atlassian.uwc.converters.xml.DefaultXmlParser;
 
 /**
- * Uses a tag's attribute named 'realLevel' to set the h1. / h2. etc. headers.
+ * Newlines before and after paragraph.
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public class HeaderParser extends DefaultXmlParser {
+public class ParagraphParser extends DefaultXmlParser {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		appendOutput("\n\nh" + attributes.getValue("realLevel") + ". ");
+		appendOutput("\n");
 	}
 
 	@Override

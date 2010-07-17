@@ -22,18 +22,36 @@ import org.xml.sax.SAXException;
 import com.atlassian.uwc.converters.xml.DefaultXmlParser;
 
 /**
- * Uses a tag's attribute named 'realLevel' to set the h1. / h2. etc. headers.
+ * Abstract base class for XmlParser implementation which need to treat element content.
+ * 
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public class HeaderParser extends DefaultXmlParser {
+public abstract class AbstractElementContentParser extends DefaultXmlParser {
 
+	private Attributes attributes;
+	private String content;
+	
+	protected void clearFields() {
+		content = null;
+		attributes = null;
+	}
+	
+	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content, StringBuilder confluenceMarkup);
+	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		appendOutput("\n\nh" + attributes.getValue("realLevel") + ". ");
+		this.attributes = attributes;
 	}
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		appendOutput("\n");
+		StringBuilder confluenceMarkup = new StringBuilder();
+		fullElement(uri, localName, qName, attributes, content, confluenceMarkup);
+		appendOutput(confluenceMarkup.toString());
+	}
+
+	@Override
+	public void characters(char[] ch, int start, int length) throws SAXException {
+		content = String.copyValueOf(ch, start, length);
 	}
 }
