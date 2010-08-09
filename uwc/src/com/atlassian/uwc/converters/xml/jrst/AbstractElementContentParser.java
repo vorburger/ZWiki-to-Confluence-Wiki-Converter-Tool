@@ -36,7 +36,7 @@ public abstract class AbstractElementContentParser extends DefaultXmlParser {
 		attributes = null;
 	}
 	
-	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content, StringBuilder confluenceMarkup);
+	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content);
 	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
@@ -45,9 +45,7 @@ public abstract class AbstractElementContentParser extends DefaultXmlParser {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		StringBuilder confluenceMarkup = new StringBuilder();
-		fullElement(uri, localName, qName, attributes, content, confluenceMarkup);
-		appendOutput(confluenceMarkup.toString());
+		fullElement(uri, localName, qName, attributes, content);
 	}
 
 	@Override
