@@ -17,27 +17,25 @@
 package com.atlassian.uwc.converters.xml.jrst;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import com.atlassian.uwc.converters.xml.DefaultXmlParser;
 
 /**
- * Reference to [ConfluenceLink].
- * 
+ * XML Blockquote to {quote}.
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public class ReferenceParser extends DefaultXmlParser {
+public class BlockQuoteParser extends DefaultXmlParser {
 
+	// TODO JRst emits "nested" <block_quote>, they should be 'flattened' here...
+	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		String url = attributes.getValue("link");
-		String name = attributes.getValue("name");
+		appendOutput("{quote}");
+	}
 
-		appendOutput("[");
-		appendOutput(name);
-		if (url != null && !url.equals(name)) {
-			appendOutput("|");
-			appendOutput(url);
-		}
-		appendOutput("]");
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		appendOutput("{quote}\n");
 	}
 }
