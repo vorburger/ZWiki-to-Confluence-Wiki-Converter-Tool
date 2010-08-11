@@ -16,21 +16,33 @@
  */
 package com.atlassian.uwc.converters.xml.jrst;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.xml.sax.Attributes;
-
-import com.atlassian.uwc.converters.xml.DefaultXmlParser;
 
 /**
  * Reference to [ConfluenceLink].
  * 
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public class ReferenceParser extends DefaultXmlParser {
+public class ReferenceParser extends AbstractElementContentParser {
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		String url = attributes.getValue("link");
+	protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) {
 		String name = attributes.getValue("name");
+		if (name == null) {
+			name = content;
+		}
+		if (name.startsWith("!")) {
+			// Plone zWiki RST links sometimes start with a '!'
+			// (for {nolink} ?) which makes no sense in Confluence (links)
+			name = name.substring(1);
+		}
+		
+		String url = attributes.getValue("link");
+		if (url == null) {
+			url = attributes.getValue("refuri");
+		}
 
 		appendOutput("[");
 		appendOutput(name);
@@ -39,5 +51,6 @@ public class ReferenceParser extends DefaultXmlParser {
 			appendOutput(url);
 		}
 		appendOutput("]");
+		
 	}
 }
