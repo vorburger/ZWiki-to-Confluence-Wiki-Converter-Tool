@@ -17,12 +17,10 @@
 package ch.vorburger.mifos.wiki;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
@@ -33,8 +31,12 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 /**
  * Scraper for a Plone ZWiki.
+ * 
+ * @see http://mifosforge.jira.com/wiki/display/MIFOSADMIN/ZWiki+to+Confluence+Wiki+Converter+Tool
  * @see http://www.mifos.org/developers/wiki/MigrateDeveloperWiki
+ * 
  * @author Michael Vorburger
+ * @author Etienne Studer
  */
 public class ZWikiScraper {
 	
@@ -61,10 +63,10 @@ public class ZWikiScraper {
 			if (wdGoToEdit(pageID)) {
 				page.pageContent = wd.findElement(By.tagName("textarea")).getValue(); // NOT getText(); !!!
 				page.pageName = wd.findElement(By.name("title")).getValue();
-				if ((page.pageName == null) || (page.pageName.isEmpty()))
-					page.pageName = page.pageID;
 				page.timeStamp = wd.findElement(By.name("timeStamp")).getValue();
 			}
+			if ((page.pageName == null) || (page.pageName.isEmpty()))
+				page.pageName = page.pageID;
 			return page;
 		}
 		
@@ -73,7 +75,9 @@ public class ZWikiScraper {
 			WikiPage page = getPage();
 			
 			if (page.pageContent != null) {
-				File contentFile = new File(parentDir, page.pageID + ".rst");
+				String fileName = page.pageName + ".rst";
+				fileName = fileName.replace('/', '_');
+				File contentFile = new File(parentDir, fileName);
 				FileWriter fw = null;
 				try {
 					fw = new FileWriter(contentFile);
@@ -93,7 +97,7 @@ public class ZWikiScraper {
 			}
 			
 			if (!childNodes.isEmpty()) {
-				File childNodeDir = new File(parentDir, page.pageID);
+				File childNodeDir = new File(parentDir, page.pageName);
 				childNodeDir.mkdirs();
 				for (WikiNode childNode : childNodes) {
 					childNode.dumpToDirectory(childNodeDir);
@@ -163,27 +167,35 @@ public class ZWikiScraper {
 		if (args.length != 2) 
 			throw new IllegalArgumentException("Missing uid & pwd, as args");
 		
+		long startTime = System.currentTimeMillis();
+		
 		String uid = args[0];
 		String pwd = args[1];
 		ZWikiScraper s = new ZWikiScraper("http://www.mifos.org/developers/wiki/", uid, pwd);
 		List<WikiNode> rootNodes = s.getContents();
-
-		File dumpDir = new File("target/wikiContent");
-		for (WikiNode node : rootNodes) {
-			node.dumpToDirectory(dumpDir);
-		}
 		
+		long midTime = System.currentTimeMillis() - startTime;
 
 /*		
 		WikiPage p = s.getPage("MigrateDeveloperWiki");
-		//
-		// TODO Write out p.pageContent into a file named p.pageID, and pageName into a .properties for metadata? Or keep it all in memory?
-		//
-		//System.out.println(p.pageName);
+		System.out.println(p.pageName);
 		System.out.println(p.pageContent);
-		//System.out.println(s.wd.getPageSource());
+		System.out.println(s.wd.getPageSource());
 */
-		s.close();
+		File dumpDir = new File("target/wikiContent");
+		try {
+			for (WikiNode node : rootNodes) {
+				node.dumpToDirectory(dumpDir);
+			}
+		
+		} finally {
+			s.close();
+			
+			long stopTime = System.currentTimeMillis();
+			long totalTime = stopTime - startTime;
+			System.out.println("\n\nZWikiScraper index page fetching and parsing took " + midTime / 1000 + "s");
+			System.out.println("\n\nZWikiScraper took " + totalTime / 1000 + "s total (fetched all pages on index)");
+		}
 	}
 
 	
