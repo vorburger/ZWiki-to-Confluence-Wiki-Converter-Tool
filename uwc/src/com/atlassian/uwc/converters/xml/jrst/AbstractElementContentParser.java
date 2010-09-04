@@ -36,7 +36,7 @@ public abstract class AbstractElementContentParser extends DefaultXmlParser {
 		attributes = null;
 	}
 	
-	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content);
+	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) throws SAXException;
 	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {

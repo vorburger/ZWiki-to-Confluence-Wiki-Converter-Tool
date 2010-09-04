@@ -17,10 +17,12 @@
 package ch.vorburger.mifos.wiki;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
@@ -70,7 +72,7 @@ public class ZWikiScraper {
 			return page;
 		}
 		
-		void dumpToDirectory(File parentDir) throws IOException {
+		void dumpToDirectory(File parentDir, Properties pageId2Name, Properties pageName2Id) throws IOException {
 			parentDir.mkdirs();
 			WikiPage page = getPage();
 			
@@ -86,6 +88,8 @@ public class ZWikiScraper {
 					if (fw != null)
 						fw.close();
 				}
+				pageId2Name.setProperty(page.pageID, page.pageName);
+				pageName2Id.setProperty(page.pageName, page.pageID);
 				
 /*				// TODO Re-enable, and test... if I actually use pageName & timeStamp
 				Properties pageMetadataProperties = new Properties();
@@ -100,7 +104,7 @@ public class ZWikiScraper {
 				File childNodeDir = new File(parentDir, page.pageName);
 				childNodeDir.mkdirs();
 				for (WikiNode childNode : childNodes) {
-					childNode.dumpToDirectory(childNodeDir);
+					childNode.dumpToDirectory(childNodeDir, pageId2Name, pageName2Id);
 				}
 			}
 		}
@@ -158,8 +162,6 @@ public class ZWikiScraper {
 			throw new IllegalArgumentException("wikiBaseURL must end with a slash ('/') but does not: " + wikiBaseURL);
 
 		this.wd = new HtmlUnitDriver(true); // true = JS on; IS NEEDED for authentication & forwarding to work!
-		// TODO Works? Faster?? wd.setJavascriptEnabled(false);
-		// this.wd = new FirefoxDriver();
 		this.wd.manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS);
 	}
 
@@ -183,13 +185,18 @@ public class ZWikiScraper {
 		System.out.println(s.wd.getPageSource());
 */
 		File dumpDir = new File("target/wikiContent");
+		Properties pageId2Name = new Properties();
+		Properties pageName2Id = new Properties();
 		try {
 			for (WikiNode node : rootNodes) {
-				node.dumpToDirectory(dumpDir);
+				node.dumpToDirectory(dumpDir, pageId2Name, pageName2Id);
 			}
 		
 		} finally {
 			s.close();
+			
+			saveProperties(pageId2Name, new File(dumpDir, "pageId2Name.properties"));
+			saveProperties(pageName2Id, new File(dumpDir, "pageName2Id.properties"));
 			
 			long stopTime = System.currentTimeMillis();
 			long totalTime = stopTime - startTime;
@@ -198,7 +205,6 @@ public class ZWikiScraper {
 		}
 	}
 
-	
 	List<WikiNode> getContents() {
 		List<WikiNode> rootNodes = new LinkedList<ZWikiScraper.WikiNode>(); 
 		
@@ -245,4 +251,14 @@ public class ZWikiScraper {
 			throw new IllegalArgumentException(href + " does not start with " + wikiBaseURL);
 		}
 	}
+	
+	private static void saveProperties(Properties properties, File file) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		try {
+			properties.store(fos , ZWikiScraper.class.getName());
+		} finally {
+			fos.close();
+		}
+	}
+
 }

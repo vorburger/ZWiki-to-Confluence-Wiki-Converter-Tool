@@ -16,9 +16,8 @@
  */
 package com.atlassian.uwc.converters.xml.jrst;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 /**
  * Reference to [ConfluenceLink].
@@ -27,9 +26,13 @@ import org.xml.sax.Attributes;
  */
 public class ReferenceParser extends AbstractElementContentParser {
 
+	static final String REFURI = "refuri";
+	static final String LINK = "link";
+	static final String NAME = "name";
+
 	@Override
-	protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) {
-		String name = attributes.getValue("name");
+	protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) throws SAXException {
+		String name = attributes.getValue(NAME);
 		if (name == null) {
 			name = content;
 		}
@@ -39,18 +42,31 @@ public class ReferenceParser extends AbstractElementContentParser {
 			name = name.substring(1);
 		}
 		
-		String url = attributes.getValue("link");
+		String url = attributes.getValue(LINK);
 		if (url == null) {
-			url = attributes.getValue("refuri");
+			url = attributes.getValue(REFURI);
 		}
 
 		appendOutput("[");
-		appendOutput(name);
 		if (url != null && !url.equals(name)) {
+			appendOutput(name);
 			appendOutput("|");
+			url = checkAndFixLink(url);
 			appendOutput(url);
+		} else {
+			name = checkAndFixLink(name);
+			appendOutput(name);
 		}
 		appendOutput("]");
-		
+	}
+	
+	/**
+	 * Hook for subclasses to check a link target, and fix it if necessary.
+	 * 
+	 * @param link original link as found in incoming XML
+	 * @return same link, or fixed version of it
+	 */
+	protected String checkAndFixLink(String link) throws SAXException {
+		return link;
 	}
 }
