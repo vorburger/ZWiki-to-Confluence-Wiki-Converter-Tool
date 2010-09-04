@@ -16,9 +16,11 @@
 package ch.vorburger.mifos.wiki;
 
 import java.io.File;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.nuiton.jrst.JRST;
 import org.nuiton.jrst.JRST.Overwrite;
 import org.nuiton.jrst.JRSTOptions;
@@ -44,7 +46,7 @@ public class ZWikiJRstConverter {
 		for (File skippedPageName : conv.skippedPageNames) {
 			System.out.println(skippedPageName);
 		}
-		System.out.println("\n\nConversion failed for the following input pages (see above for detailed exceptions) :");
+		System.out.println("\n\nConversion failed for the following input pages; an empty page with label 'tbd_mig_manual' will be uploaded instead (see above for detailed exceptions) :");
 		for (File failedPageName : conv.failedPageNames) {
 			System.out.println(failedPageName);
 		}
@@ -99,9 +101,10 @@ public class ZWikiJRstConverter {
 			e.printStackTrace();
 			++failedPages;
 			failedPageNames.add(inputFile);
-			//
-			// TODO Save SOME *.xml anyways, may be just something which will lead to {code}...rst...{code} in Confluence?  Or simply do that manually?? 
-			//
+			
+			URL failedConversionTemplate = getClass().getResource("/FailedConversionTemplate.xml");
+			FileUtils.copyURLToFile(failedConversionTemplate, outputFile);
+			
 			return false;
 		}
 	}
