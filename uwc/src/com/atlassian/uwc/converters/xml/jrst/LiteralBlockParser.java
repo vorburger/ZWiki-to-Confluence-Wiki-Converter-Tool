@@ -22,35 +22,20 @@ import org.xml.sax.SAXException;
 import com.atlassian.uwc.converters.xml.DefaultXmlParser;
 
 /**
- * Abstract base class for XmlParser implementation which need to treat element content.
- * 
+ * XML literal_block to {noformat}.
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public abstract class AbstractElementContentParser extends DefaultXmlParser {
+public class LiteralBlockParser extends DefaultXmlParser {
 
-	private Attributes attributes;
-	private String content;
-	
-	protected void clearFields() {
-		content = null;
-		attributes = null;
-	}
-	
-	abstract protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) throws SAXException;
+	// TODO JRst emits "nested" <block_quote>, they should be 'flattened' here...
 	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		this.attributes = attributes;
+		appendOutput("{noformat}");
 	}
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		fullElement(uri, localName, qName, attributes, content);
-		clearFields();
-	}
-
-	@Override
-	public void characters(char[] ch, int start, int length) throws SAXException {
-		content = String.copyValueOf(ch, start, length);
+		appendOutput("{noformat}\n");
 	}
 }

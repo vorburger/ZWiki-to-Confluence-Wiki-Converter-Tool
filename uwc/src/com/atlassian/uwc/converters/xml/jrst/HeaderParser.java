@@ -19,21 +19,16 @@ package com.atlassian.uwc.converters.xml.jrst;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import com.atlassian.uwc.converters.xml.DefaultXmlParser;
-
 /**
  * Uses a tag's attribute named 'realLevel' to set the h1. / h2. etc. headers.
  * @author Michael Vorburger (mike@vorburger.ch)
  */
-public class HeaderParser extends DefaultXmlParser {
+public class HeaderParser extends AbstractElementContentParser {
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		appendOutput("\n\nh" + attributes.getValue("realLevel") + ". ");
-	}
-
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		appendOutput("\n");
+	protected void fullElement(String uri, String localName, String qName, Attributes attributes, String content) throws SAXException {
+		if (content != null && !content.trim().isEmpty()) {
+			appendOutput("\n\nh" + attributes.getValue("realLevel") + ". " + content + "\n");
+		}
 	}
 }
