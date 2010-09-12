@@ -30,7 +30,7 @@ public class ExtendedXmlConverter extends XmlConverter {
 	public void convert(Page page) {
 		super.convert(page);
 		
-		String convertedFixedText = page.getConvertedText().replaceAll("!(\\w)", "$1");
+		String convertedFixedText = page.getConvertedText().replaceAll("!(\\w)+", "$1");
 		page.setConvertedText(convertedFixedText);
 	}
 
